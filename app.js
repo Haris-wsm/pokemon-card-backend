@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: "http://localhost:3000",
+    origin: [process.env.DOMIAN_DASHBOARD, process.env.DOMIAN_STORE],
   })
 );
 app.use(helmet({ crossOriginResourcePolicy: false }));
