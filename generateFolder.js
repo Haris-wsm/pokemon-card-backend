@@ -1,9 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 
-const createFolder = (path) => {
-  if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
+const createFolder = (folderPath) => {
+  if (!fs.existsSync(folderPath)) {
+    try {
+      fs.mkdirSync(folderPath, { recursive: true });
+    } catch (err) {
+      console.error(`Error creating folder ${folderPath}: `, err);
+      process.exit(1);
+    }
   }
 };
 
