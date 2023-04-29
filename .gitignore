@@ -1,2 +1,8 @@
 .env
 node_modules
+
+public/banner
+public/blog
+public/images
+public/product
+public/website
