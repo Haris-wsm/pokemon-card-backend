@@ -9,11 +9,11 @@ const createFolder = (path) => {
 
 const publicPath = path.resolve(".", "public");
 
-const banner = path.join(publicPath, "banner");
-const blog = path.join(publicPath, "blog");
-const images = path.join(publicPath, "images");
-const product = path.join(publicPath, "product");
-const website = path.join(publicPath, "website");
+const banner = path.resolve(publicPath, "banner");
+const blog = path.resolve(publicPath, "blog");
+const images = path.resolve(publicPath, "images");
+const product = path.resolve(publicPath, "product");
+const website = path.resolve(publicPath, "website");
 
 createFolder(banner);
 createFolder(blog);
