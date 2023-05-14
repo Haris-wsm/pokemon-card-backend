@@ -48,5 +48,5 @@ services:
 volumes:
   dbdata6:
   appdata:
-  caddy_data:
-  caddy_config:
+  # caddy_data:
+  # caddy_config:
