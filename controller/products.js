@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const ProductModel = require("../models/products");
 const CodeModel = require("../models/code");
+const CategoryModel = require("../models/categories");
 const { responseSuccess } = require("../utils/response");
 const ValidationError = require("../error/ValidationError");
 const { default: mongoose } = require("mongoose");
@@ -30,6 +31,146 @@ exports.create = async (req, res, next) => {
   }
 };
 
+exports.checkUserCart = async (req, res, next) => {
+  try {
+    const { cart } = req.body;
+
+    const { ObjectId } = mongoose.Types;
+
+    const promises = cart.map(async (item) => {
+      const product = await ProductModel.aggregate([
+        { $match: { _id: new ObjectId(item._id) } },
+        {
+          $lookup: {
+            from: "codes",
+            localField: "_id",
+            foreignField: "ref_product",
+            as: "codes",
+          },
+        },
+        {
+          $unwind: { path: "$codes", preserveNullAndEmptyArrays: true },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            createdAt: { $first: "$createdAt" },
+            discount: { $first: "$discount" },
+            gallery: { $first: "$gallery" },
+            image: { $first: "$image" },
+            isSetPackage: { $first: "$isSetPackage" },
+            name: { $first: "$name" },
+            price: { $first: "$price" },
+            ref_category: { $first: "$ref_category" },
+            sale: { $first: "$sale" },
+            status: { $first: "$status" },
+            // stock: { $sum: 1 },
+            stock: {
+              $sum: { $cond: [{ $eq: ["$codes.status", "unused"] }, 1, 0] },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            createdAt: 1,
+            discount: 1,
+            gallery: 1,
+            image: 1,
+            isSetPackage: 1,
+            name: 1,
+            price: 1,
+            ref_category: 1,
+            sale: 1,
+            status: 1,
+            stock: 1,
+          },
+        },
+      ]);
+
+      const productData = product.length > 0 ? product[0] : {};
+
+      const payload = {
+        _id: item._id,
+        name: productData.name || "",
+        price: productData.price || 0,
+        qty: item.qty,
+        image: productData.image || "",
+        isSetPackage: productData.isSetPackage || false,
+        sale: productData.sale || false,
+        discount: productData.discount || 0,
+        stock: productData.stock || 0,
+        validItem: false,
+      };
+
+      if (!product.length) return payload;
+
+      if (product[0].stock === 0) return payload;
+
+      if (product[0].stock < item.qty) return payload;
+
+      if (product[0].stock < item.qty) return payload;
+
+      payload.validItem = true;
+
+      return payload;
+    });
+
+    const products = await Promise.all(promises);
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, products);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+exports.topSell = async (req, res, next) => {
+  try {
+    const products = await ProductModel.aggregate([
+      {
+        $lookup: {
+          from: "codes",
+          localField: "_id",
+          foreignField: "ref_product",
+          as: "codes",
+        },
+      },
+      {
+        $unwind: {
+          path: "$codes",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          used: { $sum: { $cond: [{ $eq: ["$codes.status", "used"] }, 1, 0] } },
+          image: { $first: "$image" },
+          name: { $first: "$name" },
+          desc: { $first: "$desc" },
+          price: { $first: "$price" },
+          status: { $first: "$status" },
+          isSetPackage: { $first: "$isSetPackage" },
+          sale: { $first: "$sale" },
+          discount: { $first: "$discount" },
+          gallery: { $first: "$gallery" },
+          category: {
+            $first: "$category",
+          },
+          updatedAt: { $first: "$updatedAt" },
+        },
+      },
+      { $sort: { used: -1 } },
+      { $limit: Number(req.query.limit) || 10 },
+    ]);
+
+    responseSuccess(res, "ค้นหาข้อมูลสำเร็จ", 200, products);
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.list = async (req, res, next) => {
   try {
     const products = await ProductModel.aggregate([
@@ -44,7 +185,7 @@ exports.list = async (req, res, next) => {
       {
         $unwind: {
           path: "$category",
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -67,8 +208,77 @@ exports.list = async (req, res, next) => {
         },
       },
     ]);
+
     responseSuccess(res, "ค้นหาข้อมูลสำเร็จ", 200, products);
   } catch (error) {
+    next(error);
+  }
+};
+
+exports.listNew = async (req, res, next) => {
+  try {
+    const products = await ProductModel.aggregate([
+      {
+        $sort: {
+          createdAt: 1,
+        },
+      },
+      {
+        $limit: Number(req.query.limit) || 30,
+      },
+      {
+        $lookup: {
+          from: "codes",
+          localField: "_id",
+          foreignField: "ref_product",
+          as: "codes",
+        },
+      },
+      {
+        $unwind: "$codes",
+      },
+      {
+        $match: {
+          "codes.status": "unused",
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          createdAt: { $first: "$createdAt" },
+          discount: { $first: "$discount" },
+          gallery: { $first: "$gallery" },
+          image: { $first: "$image" },
+          isSetPackage: { $first: "$isSetPackage" },
+          name: { $first: "$name" },
+          price: { $first: "$price" },
+          ref_category: { $first: "$ref_category" },
+          sale: { $first: "$sale" },
+          status: { $first: "$status" },
+          stock: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          createdAt: 1,
+          discount: 1,
+          gallery: 1,
+          image: 1,
+          isSetPackage: 1,
+          name: 1,
+          price: 1,
+          ref_category: 1,
+          sale: 1,
+          status: 1,
+          stock: 1,
+        },
+      },
+    ]);
+
+    responseSuccess(res, "เพิ่มข้อมูลสำเร็จ", 200, products);
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -92,7 +302,7 @@ exports.getOne = async (req, res, next) => {
       {
         $unwind: {
           path: "$category",
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -116,7 +326,6 @@ exports.getOne = async (req, res, next) => {
           unused: {
             $sum: { $cond: [{ $eq: ["$codes.status", "unused"] }, 1, 0] },
           },
-          // totalCodes: { $sum: 1 },
           image: { $first: "$image" },
           name: { $first: "$name" },
           desc: { $first: "$desc" },
@@ -135,6 +344,265 @@ exports.getOne = async (req, res, next) => {
     ]);
 
     responseSuccess(res, "ค้นหาข้อมูลสำเร็จ", 200, product[0]);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.getOnSale = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 30, sort } = req.query;
+
+    const pipeline = [{ $match: { sale: true } }];
+
+    if (sort === "name") {
+      pipeline.push({ $sort: { name: 1 } });
+    }
+
+    if (sort === "onsale") {
+      pipeline.push({ $match: { sale: true } });
+    }
+
+    if (sort === "maxprice") {
+      pipeline.push({ $sort: { price: -1 } });
+    }
+
+    if (sort === "minprice") {
+      pipeline.push({ $sort: { price: 1 } });
+    }
+
+    if (sort === "newest") {
+      pipeline.unshift({ $sort: { createdAt: -1 } });
+    }
+
+    pipeline.push(
+      { $skip: (page - 1) * limit },
+      { $limit: parseInt(limit) },
+      {
+        $lookup: {
+          from: "codes",
+          localField: "_id",
+          foreignField: "ref_product",
+          as: "codes",
+        },
+      },
+      {
+        $unwind: {
+          path: "$codes",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          used: { $sum: { $cond: [{ $eq: ["$codes.status", "used"] }, 1, 0] } },
+          unused: {
+            $sum: { $cond: [{ $eq: ["$codes.status", "unused"] }, 1, 0] },
+          },
+          image: { $first: "$image" },
+          name: { $first: "$name" },
+          desc: { $first: "$desc" },
+          price: { $first: "$price" },
+          status: { $first: "$status" },
+          isSetPackage: { $first: "$isSetPackage" },
+          sale: { $first: "$sale" },
+          discount: { $first: "$discount" },
+          gallery: { $first: "$gallery" },
+          category: {
+            $first: "$category",
+          },
+          updatedAt: { $first: "$updatedAt" },
+        },
+      }
+    );
+
+    const [products, total] = await Promise.all([
+      ProductModel.aggregate(pipeline),
+      ProductModel.countDocuments({ sale: true }),
+    ]);
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, { products, total });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.search = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 30, sort } = req.query;
+
+    const matches = {
+      $match: {
+        $or: [
+          // Search for exact matches in the name field
+          { name: req.params.word },
+          // Search for partial matches in the name field
+          { name: { $regex: req.params.word, $options: "i" } },
+        ],
+      },
+    };
+
+    const pipeline = [matches];
+
+    if (sort === "name") {
+      pipeline.push({ $sort: { name: 1 } });
+    }
+
+    if (sort === "onsale") {
+      pipeline.push({ $match: { sale: true } });
+    }
+
+    if (sort === "maxprice") {
+      pipeline.push({ $sort: { price: -1 } });
+    }
+
+    if (sort === "minprice") {
+      pipeline.push({ $sort: { price: 1 } });
+    }
+
+    if (sort === "newest") {
+      pipeline.unshift({ $sort: { createdAt: -1 } });
+    }
+
+    pipeline.push(
+      { $skip: (page - 1) * limit },
+      { $limit: parseInt(limit) },
+      {
+        $lookup: {
+          from: "codes",
+          localField: "_id",
+          foreignField: "ref_product",
+          as: "codes",
+        },
+      },
+      {
+        $unwind: {
+          path: "$codes",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          used: { $sum: { $cond: [{ $eq: ["$codes.status", "used"] }, 1, 0] } },
+          unused: {
+            $sum: { $cond: [{ $eq: ["$codes.status", "unused"] }, 1, 0] },
+          },
+          image: { $first: "$image" },
+          name: { $first: "$name" },
+          desc: { $first: "$desc" },
+          price: { $first: "$price" },
+          status: { $first: "$status" },
+          isSetPackage: { $first: "$isSetPackage" },
+          sale: { $first: "$sale" },
+          discount: { $first: "$discount" },
+          gallery: { $first: "$gallery" },
+          category: {
+            $first: "$category",
+          },
+          updatedAt: { $first: "$updatedAt" },
+        },
+      }
+    );
+
+    const [products, total] = await Promise.all([
+      ProductModel.aggregate(pipeline),
+      ProductModel.countDocuments({
+        $or: [
+          { name: req.params.word }, // Search for exact matches in the name field
+          { name: { $regex: req.params.word, $options: "i" } }, // Search for partial matches in the name field
+        ],
+      }),
+    ]);
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, { products, total });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+exports.getByCategory = async (req, res, next) => {
+  try {
+    const category = await CategoryModel.findOne({ name: req.params.name });
+
+    if (!category) throw new ValidationError("ไม่พบประเภทสินค้า");
+
+    const { page = 1, limit = 30, sort } = req.query;
+
+    const pipeline = [{ $match: { ref_category: category._id } }];
+
+    if (sort === "name") {
+      pipeline.push({ $sort: { name: 1 } });
+    }
+
+    if (sort === "onsale") {
+      pipeline.push({ $match: { sale: true } });
+    }
+
+    if (sort === "maxprice") {
+      pipeline.push({ $sort: { price: -1 } });
+    }
+
+    if (sort === "minprice") {
+      pipeline.push({ $sort: { price: 1 } });
+    }
+
+    if (sort === "newest") {
+      pipeline.push({ $sort: { createdAt: -1 } });
+    }
+
+    pipeline.push(
+      { $skip: (page - 1) * limit },
+      { $limit: parseInt(limit) },
+      {
+        $lookup: {
+          from: "codes",
+          localField: "_id",
+          foreignField: "ref_product",
+          as: "codes",
+        },
+      },
+      {
+        $unwind: {
+          path: "$codes",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          used: { $sum: { $cond: [{ $eq: ["$codes.status", "used"] }, 1, 0] } },
+          unused: {
+            $sum: { $cond: [{ $eq: ["$codes.status", "unused"] }, 1, 0] },
+          },
+          image: { $first: "$image" },
+          name: { $first: "$name" },
+          desc: { $first: "$desc" },
+          price: { $first: "$price" },
+          status: { $first: "$status" },
+          isSetPackage: { $first: "$isSetPackage" },
+          sale: { $first: "$sale" },
+          discount: { $first: "$discount" },
+          gallery: { $first: "$gallery" },
+          category: {
+            $first: "$category",
+          },
+          updatedAt: { $first: "$updatedAt" },
+        },
+      }
+    );
+
+    const [products, total] = await Promise.all([
+      ProductModel.aggregate(pipeline),
+      ProductModel.countDocuments({ ref_category: category._id }),
+    ]);
+
+    console.log(total);
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, { products, total });
   } catch (error) {
     console.log(error);
     next(error);

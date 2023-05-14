@@ -89,6 +89,8 @@ class UploadMiddleware {
         cb(null, "public/banner/");
       } else if (type === "website-editor") {
         cb(null, "public/website/");
+      } else if (type === "file-attachment") {
+        cb(null, "public/file-attachment/");
       } else {
         cb(null, "public/images/");
       }

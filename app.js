@@ -6,6 +6,9 @@ const helmet = require("helmet");
 const errorHandler = require("./error/errorHandler");
 const cors = require("cors");
 
+const http = require("http");
+const socketIO = require("socket.io");
+
 const app = express();
 
 app.use(logger("dev"));
@@ -13,10 +16,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const ENV = require("./config/constant");
+
 app.use(
   cors({
     credentials: true,
-    origin: [process.env.DOMIAN_DASHBOARD, process.env.DOMIAN_STORE],
+    origin: [ENV.DOMIAN_DASHBOARD, ENV.DOMIAN_STORE],
   })
 );
 app.use(helmet({ crossOriginResourcePolicy: false }));
@@ -46,8 +51,15 @@ app.use("/images/banner", express.static("public/banner"));
 app.use("/images/site-image", express.static("public/website"));
 app.use("/images/product/editor", express.static("public/product"));
 app.use("/images/blog", express.static("public/blog"));
+app.use("/images/qrcode", express.static("public/qrcode"));
+app.use("/public/file-attachment',", express.static("public/file-attachment"));
 
 app.use(require("./routes"));
 app.use(errorHandler);
 
-module.exports = app;
+const server = http.createServer(app); // Create Node.js HTTP server
+const io = socketIO(server); // Create Socket.io server
+
+app.set("socketio", io);
+
+module.exports = { server, io };

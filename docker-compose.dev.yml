@@ -1,0 +1,32 @@
+version: "3.7"
+services:
+  rest-api:
+    container_name: rest-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+    build:
+      context: ./
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    volumes:
+      - appdata:/app/public
+      - ./src:/app/src
+  mongo:
+    container_name: mongodb
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pokemon456
+    ports:
+      - "27017:27017"
+    volumes:
+      - dbdata6:/data/db
+volumes:
+  dbdata6:
+  appdata:

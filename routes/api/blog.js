@@ -3,6 +3,8 @@ const router = require("express").Router();
 const blogController = require("../../controller/blog");
 
 router.get("/", blogController.list);
+router.get("/all", blogController.listHome);
+router.get("/newest", blogController.listNew);
 router.get("/:slug", blogController.getBlog);
 router.put("/:slug", blogController.updateBlog);
 router.delete("/:slug", blogController.deleteBlog);

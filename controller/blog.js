@@ -4,7 +4,21 @@ const { responseSuccess } = require("../utils/response");
 const ValidationError = require("../error/ValidationError");
 const fs = require("fs/promises");
 const path = require("path");
-const { log } = require("console");
+
+exports.listNew = async (req, res, next) => {
+  try {
+    const blogs = await BlogModel.aggregate([
+      { $match: { publish: true } },
+      { $sort: { createdAt: -1 } },
+      { $limit: Number(req.query.limit) || 3 },
+    ]);
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, blogs);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
 
 exports.createBlog = async (req, res, next) => {
   try {
@@ -36,7 +50,26 @@ exports.list = async (req, res, next) => {
   try {
     const blogs = await BlogModel.aggregate([{ $sort: { createdAt: -1 } }]);
 
-    responseSuccess(res, "เพิ่มข้อมูลสำเร็จ", 200, blogs);
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, blogs);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.listHome = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query; // default to page 1 and 10 items per page
+    const [blogs, total] = await Promise.all([
+      BlogModel.aggregate([
+        { $sort: { createdAt: -1 } },
+        { $match: { publish: true } },
+        { $skip: (page - 1) * limit }, // skip items based on current page and limit
+        { $limit: parseInt(limit) }, // limit items based on requested limit
+      ]),
+      BlogModel.countDocuments({ publish: true }), // get the total count of published blogs
+    ]);
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, { blogs, total });
   } catch (error) {
     next(error);
   }

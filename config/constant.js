@@ -1,0 +1,10 @@
+module.exports = {
+  DATABSE_HOST: process.env.DATABSE_HOST,
+  DATABSE_PORT: process.env.DATABSE_PORT,
+  DATABSE_COLLECT: process.env.DATABSE_COLLECT,
+  DATABASE_USERNAME: process.env.DATABASE_USERNAME,
+  DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
+  SALT: process.env.SALT,
+  DOMIAN_DASHBOARD: process.env.DOMIAN_DASHBOARD,
+  DOMIAN_STORE: process.env.DOMIAN_STORE,
+};

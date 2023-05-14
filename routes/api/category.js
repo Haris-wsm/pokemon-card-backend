@@ -9,6 +9,7 @@ router.post(
   categoriesController.create
 );
 router.get("/", categoriesController.list);
+router.get("/:name", categoriesController.getByName);
 router.put("/:id", categoriesController.update);
 router.delete("/:id", categoriesController.delete);
 

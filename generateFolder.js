@@ -19,9 +19,13 @@ const blog = path.resolve(publicPath, "blog");
 const images = path.resolve(publicPath, "images");
 const product = path.resolve(publicPath, "product");
 const website = path.resolve(publicPath, "website");
+const qrcode = path.resolve(publicPath, "qrcode");
+const fileAttachment = path.resolve(publicPath, "file-attachment");
 
 createFolder(banner);
 createFolder(blog);
 createFolder(images);
 createFolder(product);
 createFolder(website);
+createFolder(qrcode);
+createFolder(fileAttachment);

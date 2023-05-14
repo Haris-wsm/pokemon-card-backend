@@ -2,14 +2,15 @@ const Mongoose = require("mongoose");
 
 const shema = new Mongoose.Schema(
   {
-    username: { type: String },
+    name: { type: String },
+    lastname: { type: String },
     email: { type: String },
     hash: { type: String },
     address: { type: String },
-    town: { type: String },
+    city: { type: String },
     province: { type: String },
     district: { type: String },
-    state: { type: String },
+    amphoe: { type: String },
     zip: { type: String },
   },
   { timestamps: true }

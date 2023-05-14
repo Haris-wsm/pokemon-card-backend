@@ -30,6 +30,15 @@ exports.list = async (req, res, next) => {
     next(error);
   }
 };
+exports.getByName = async (req, res, next) => {
+  try {
+    const category = await CategoryModel.find({ name: req.params.name });
+
+    responseSuccess(res, "Created category.", 200, category);
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.update = async (req, res, next) => {
   try {
