@@ -31,21 +31,44 @@ services:
     image: nginx:stable-alpine
     volumes:
       - ./nginx/app.conf:/etc/nginx/app.conf
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /tmp/acme-challenge:/tmp/acme-challenge
     depends_on:
       - rest-api
     ports:
       - 80:80
       - 443:443
+    restart: always
 
-  certbot:
+  letsencrypt:
+    container_name: "certbot"
     image: certbot/certbot
-    container_name: certbot
+    command: sh -c "certbot certonly --webroot -w /tmp/acme-challenge/ -d test.mrshanas.com --text --agree-tos --email ritdragon@gmail.com --rsa-key-size 4096 --verbose --keep-until-expiring --preferred-challenges=http"
+    entrypoint: ""
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/pokemon-card-backend/certbot/www --force-renewal --email ritdragon@gmail.com -d www.poke-api.online --agree-tos
+      - "/etc/letsencrypt:/etc/letsencrypt"
+      - "/tmp/acme-challenge:/tmp/acme-challenge"
+    environment:
+      - TERM=xterm
+  # nginx:
+  #   image: nginx:stable-alpine
+  #   volumes:
+  #     - ./nginx/app.conf:/etc/nginx/app.conf
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/www:/var/www/certbot
+  #   depends_on:
+  #     - rest-api
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/www:/var/www/certbot
+  #   command: certonly --webroot -w /var/www/pokemon-card-backend/certbot/www --force-renewal --email ritdragon@gmail.com -d www.poke-api.online --agree-tos
 
 volumes:
   dbdata6:
