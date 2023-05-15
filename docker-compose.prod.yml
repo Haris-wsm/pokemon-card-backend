@@ -35,21 +35,16 @@ services:
       - rest-api
     ports:
       - 80:80
+      - 443:443
 
-  # caddy:
-  #   image: caddy/caddy:2.2.1-alpine
-  #   container_name: caddy-service
-  #   restart: unless-stopped
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - $PWD/Caddyfile:/etc/caddy/Caddyfile
-  #     - $PWD/site:/srv
-  #     - caddy_data:/data
-  #     - caddy_config:/config
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email {email} -d {domain} --agree-tos
+
 volumes:
   dbdata6:
   appdata:
-  # caddy_data:
-  # caddy_config:
