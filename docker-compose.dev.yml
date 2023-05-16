@@ -27,6 +27,15 @@ services:
       - "27017:27017"
     volumes:
       - dbdata6:/data/db
+
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./nginx/app.conf:/etc/nginx/app.conf
+    depends_on:
+      - rest-api
+    ports:
+      - 80:80
 volumes:
   dbdata6:
   appdata:

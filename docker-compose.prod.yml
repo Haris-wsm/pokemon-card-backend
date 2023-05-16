@@ -28,29 +28,15 @@ services:
     volumes:
       - dbdata6:/data/db
 
-  # nginx:
-  #   image: nginx:stable-alpine
-  #   volumes:
-  #     - ./nginx/app.conf:/etc/nginx/app.conf
-  #   depends_on:
-  #     - rest-api
-  #   ports:
-  #     - 80:80
-  caddy:
-    image: caddy/caddy:2.2.1-alpine
-    container_name: caddy-service
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+  nginx:
+    image: nginx:stable-alpine
     volumes:
-      - $PWD/Caddyfile:/etc/caddy/Caddyfile
-      - $PWD/site:/srv
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./nginx/app.conf:/etc/nginx/app.conf
+    depends_on:
+      - rest-api
+    ports:
+      - 80:80
 
 volumes:
-  caddy_data:
-  caddy_config:
   dbdata6:
   appdata:
