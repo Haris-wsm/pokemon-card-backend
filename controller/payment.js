@@ -128,13 +128,14 @@ exports.info = async (req, res, next) => {
 
     const currentDate = new Date(timestamp + THIRTY_MINUTE);
 
-    let refUser = null;
+    let refUser = null; // Initialize refUser as null
 
     if (ref_user !== "") {
-      refUser = ref_user;
+      refUser = ref_user; // Assign ref_user value to refUser if it's not an empty string
     }
 
-    const orderData = {
+    // Store order
+    const order = await OrderModel.create({
       ref_no: noRef,
       amount,
       email,
@@ -142,13 +143,9 @@ exports.info = async (req, res, next) => {
       qrcode_image: `/images/qrcode/${imageName}`,
       timeout: currentDate,
       products: results,
-    };
+      ref_user: ref_user,
+    });
 
-    if (refUser) {
-      orderData.ref_user = refUser;
-    }
-
-    const order = await OrderModel.create(orderData);
     const resposnePayload = { orderId: order.ref_no, timeout: currentDate };
 
     responseSuccess(res, "บันทึกออร์เดอร์สำเร็จ", 200, resposnePayload);
