@@ -1,6 +1,7 @@
 .env
 .env.production
 node_modules
+certbot
 
 public/banner
 public/blog
