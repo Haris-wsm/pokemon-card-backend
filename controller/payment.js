@@ -128,6 +128,12 @@ exports.info = async (req, res, next) => {
 
     const currentDate = new Date(timestamp + THIRTY_MINUTE);
 
+    let refUser = null; // Initialize refUser as null
+
+    if (ref_user !== "") {
+      refUser = ref_user; // Assign ref_user value to refUser if it's not an empty string
+    }
+
     // Store order
     const order = await OrderModel.create({
       ref_no: noRef,
@@ -137,7 +143,7 @@ exports.info = async (req, res, next) => {
       qrcode_image: `/images/qrcode/${imageName}`,
       timeout: currentDate,
       products: results,
-      ref_user: ref_user,
+      ref_user: refUser,
     });
 
     const resposnePayload = { orderId: order.ref_no, timeout: currentDate };
