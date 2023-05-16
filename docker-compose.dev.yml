@@ -1,32 +1,32 @@
 version: "3.7"
 services:
-  # rest-api:
-  #   container_name: rest-api
-  #   restart: unless-stopped
-  #   environment:
-  #     - NODE_ENV=development
-  #   build:
-  #     context: ./
-  #   ports:
-  #     - "4000:4000"
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - mongo
-  #   volumes:
-  #     - appdata:/app/public
-  #     - ./src:/app/src
-  # mongo:
-  #   container_name: mongodb
-  #   image: mongo
-  #   restart: always
-  #   environment:
-  #     MONGO_INITDB_ROOT_USERNAME: root
-  #     MONGO_INITDB_ROOT_PASSWORD: pokemon456
-  #   ports:
-  #     - "27017:27017"
-  #   volumes:
-  #     - dbdata6:/data/db
+  rest-api:
+    container_name: rest-api
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+    build:
+      context: ./
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    volumes:
+      - appdata:/app/public
+      - ./src:/app/src
+  mongo:
+    container_name: mongodb
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pokemon456
+    ports:
+      - "27017:27017"
+    volumes:
+      - dbdata6:/data/db
 
   # nginx:
   #   container_name: nginx
@@ -40,26 +40,25 @@ services:
   #   ports:
   #     - 80:80
   #     - 443:443
-  # nginx:
-  #   container_name: nginx
-  #   image: nginx:stable-alpine
-  #   volumes:
-  #     - ./nginx/app.prod.conf:/etc/nginx/conf.d/default.conf
-  #     - ./certbot/conf:/etc/letsencrypt
-  #     - ./certbot/www:/var/www
-  #     # - ./certbot/certbot_var:/var/lib/letsencrypt
-  #   depends_on:
-  #     - rest-api
-  #     - certbot
-  #   ports:
-  #     - 80:80
-  # - 443:443
+  nginx:
+    container_name: nginx
+    image: nginx:stable-alpine
+    volumes:
+      - ./nginx/app.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      # - ./certbot/certbot_var:/var/lib/letsencrypt
+    # depends_on:
+    #   - rest-api
+    #   - certbot
+    ports:
+      - 80:80
+      - 443:443
   certbot:
     image: certbot/certbot
     container_name: certbot
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/lib/letsencrypt
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+      - ./certbot/www/:/var/www/certbot/:rw
       - ./certbot/logs:/var/log/letsencrypt
     command: certonly -d poke-api.online --manual --preferred-challenges dns --dry-run
     # command:
