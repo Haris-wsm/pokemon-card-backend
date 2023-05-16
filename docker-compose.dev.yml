@@ -28,15 +28,29 @@ services:
     volumes:
       - dbdata6:/data/db
 
+  # nginx:
+  #   container_name: nginx
+  #   image: nginx:stable-alpine
+  #   volumes:
+  #     - ./nginx/app.dev.conf:/etc/nginx/conf.d/default.conf
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/www:/var/www/certbot
+  #   depends_on:
+  #     - rest-api
+  #   ports:
+  #     - 80:80
+  #     - 443:443
   nginx:
     container_name: nginx
     image: nginx:stable-alpine
     volumes:
-      - ./nginx/app.dev.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/app.prod.conf:/etc/nginx/conf.d/default.conf
       - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./certbot/www:/var/www/_letsencrypt
+      - ./certbot/certbot_var:/var/lib/letsencrypt
     depends_on:
       - rest-api
+      - certbot
     ports:
       - 80:80
       - 443:443
@@ -45,19 +59,14 @@ services:
     container_name: certbot
     volumes:
       - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    # command: certonly --webroot -w /var/www/certbot --force-renewal --email haris.wm23@gmail.com -d poke-api.online --agree-tos
+      - ./certbot/www:/var/www/_letsencrypt
+      - ./certbot/certbot_var:/var/lib/letsencrypt
+    # command: certonly --webroot -w /var/www --force-renewal --email haris.wm23@gmail.com -d poke-api.online --agree-tos
     command:
-      - certonly
-      - --webroot
-      - -w
-      - /var/www/certbot/html
-      - --email=haris.wm23@gmail.com
-      - --agree-tos
-      - --no-eff-email
-      - --dry-run
-      - -d
-      - poke-api.online
+      certonly -v --dry-run --webroot --webroot-path=/var/www/_letsencrypt
+      --preferred-challenges http-01 --email haris.wm23@gmail.com
+      --agree-tos --no-eff-email --non-interactive --force-renewal
+      -d poke-api.online
 volumes:
   dbdata6:
   appdata:
