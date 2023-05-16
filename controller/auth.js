@@ -103,6 +103,8 @@ exports.registerUser = async (req, res, next) => {
 exports.getProfile = async (req, res, next) => {
   try {
     const user = await AccountModel.findById(req.user.id);
+
+    if (!user) return responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, null);
     user.hash = undefined;
     responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, user);
   } catch (error) {

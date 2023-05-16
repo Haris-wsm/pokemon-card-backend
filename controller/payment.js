@@ -23,9 +23,7 @@ exports.info = async (req, res, next) => {
 
     if (!result.isEmpty()) throw new ValidationError("Invalid body request.");
 
-    const { amount, email, address, items, ref_user } = req.body;
-
-    console.log(req.body);
+    const { amount, email, address, items } = req.body;
 
     // Random Reference no
     const noRef = random();
@@ -140,8 +138,7 @@ exports.info = async (req, res, next) => {
       products: results,
     };
 
-    if (ref_user !== "") {
-      console.log("Passs Condition!");
+    if (req.body.ref_user) {
       orderData.ref_user = ref_user;
     }
 
