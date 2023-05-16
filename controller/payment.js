@@ -25,6 +25,8 @@ exports.info = async (req, res, next) => {
 
     const { amount, email, address, items, ref_user } = req.body;
 
+    console.log(req.body);
+
     // Random Reference no
     const noRef = random();
 
@@ -139,6 +141,7 @@ exports.info = async (req, res, next) => {
     };
 
     if (ref_user !== "") {
+      console.log("Passs Condition!");
       orderData.ref_user = ref_user;
     }
 
