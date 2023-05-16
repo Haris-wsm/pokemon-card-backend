@@ -29,9 +29,10 @@ services:
       - dbdata6:/data/db
 
   nginx:
+    container_name: nginx
     image: nginx:stable-alpine
     volumes:
-      - ./nginx/app.conf:/etc/nginx/app.conf
+      - ./nginx/app.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - rest-api
     ports:
