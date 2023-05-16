@@ -49,7 +49,7 @@ services:
       - ./certbot/www:/tmp/letsencrypt
       - ./certbot/log:/var/log
     # command: certonly --webroot -w /var/www --force-renewal --email haris.wm23@gmail.com -d poke-api.online --agree-tos
-    command: certonly --webroot --agree-tos --renew-by-default --preferred-challenges http-01 --server https://acme-v02.api.letsencrypt.org/directory --text --email haris.wm23@gmail.com -w /tmp/letsencrypt -d poke-api.online
+    command: certonly --webroot --agree-tos --renew-by-default --preferred-challenges http-01 --server https://acme-v02.api.letsencrypt.org/directory --text --email haris.wm23@gmail.com -w /tmp/letsencrypt -d www.poke-api.online
 volumes:
   dbdata6:
   appdata:
