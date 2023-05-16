@@ -147,7 +147,7 @@ exports.info = async (req, res, next) => {
 
     const order = await OrderModel.create(orderData);
 
-    responseSuccess(res, "บันทึกออร์เดอร์สำเร็จ", 200, resposnePayload);
+    responseSuccess(res, "บันทึกออร์เดอร์สำเร็จ", 200, order);
   } catch (error) {
     console.log(error);
     next(error);
