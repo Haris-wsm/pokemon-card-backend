@@ -46,10 +46,10 @@ services:
     container_name: certbot
     volumes:
       - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./certbot/www:/var/www/_letsencrypt
       - ./certbot/log:/var/log
     # command: certonly --webroot -w /var/www --force-renewal --email haris.wm23@gmail.com -d poke-api.online --agree-tos
-    command: certonly --webroot -w /var/www/certbot --email haris.wm23@gmail.com -d www.poke-api.online --agree-tos --renew-by-default
+    command: certonly --webroot -w /var/www/_letsencrypt --email haris.wm23@gmail.com -d www.poke-api.online --agree-tos --renew-by-default
 volumes:
   dbdata6:
   appdata:
