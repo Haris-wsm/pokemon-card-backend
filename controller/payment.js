@@ -117,7 +117,7 @@ exports.info = async (req, res, next) => {
 
     const updatedItems = await Promise.all(promises);
 
-    // Format products
+    // Format product
     const results = updatedItems.map((updatedCodes) => {
       const fomatCodeList = updatedCodes.map((code) => ({
         ...code,
