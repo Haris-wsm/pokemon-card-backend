@@ -37,11 +37,6 @@ services:
     ports:
       - 80:80
 
-networks:
-  default:
-    name: bridge
-    external: true
-
 volumes:
   dbdata6:
   appdata:
