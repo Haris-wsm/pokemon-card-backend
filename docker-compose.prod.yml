@@ -27,40 +27,40 @@ services:
       - "27017:27017"
     volumes:
       - dbdata6:/data/db
-  nginx:
-    image: nginx:stable-alpine
-    volumes:
-      - ./nginx/app.conf:/etc/nginx/app.conf
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /tmp/acme-challenge:/tmp/acme-challenge
-    depends_on:
-      - rest-api
-    ports:
-      - 80:80
-      - 443:443
-    restart: always
-
-  letsencrypt:
-    container_name: "certbot"
-    image: certbot/certbot
-    command: sh -c "certbot certonly --webroot -w /tmp/acme-challenge/ -d www.poke-api.online --text --agree-tos --email ritdragon@gmail.com --rsa-key-size 4096 --verbose --keep-until-expiring --preferred-challenges=http"
-    entrypoint: ""
-    volumes:
-      - "/etc/letsencrypt:/etc/letsencrypt"
-      - "/tmp/acme-challenge:/tmp/acme-challenge"
-    environment:
-      - TERM=xterm
   # nginx:
   #   image: nginx:stable-alpine
   #   volumes:
   #     - ./nginx/app.conf:/etc/nginx/app.conf
-  #     - ./certbot/conf:/etc/letsencrypt
-  #     - ./certbot/www:/var/www/certbot
+  #     - /etc/letsencrypt:/etc/letsencrypt:ro
+  #     - /tmp/acme-challenge:/tmp/acme-challenge
   #   depends_on:
   #     - rest-api
   #   ports:
   #     - 80:80
   #     - 443:443
+  #   restart: always
+
+  # letsencrypt:
+  #   container_name: "certbot"
+  #   image: certbot/certbot
+  #   command: sh -c "certbot certonly --webroot -w /tmp/acme-challenge/ -d www.poke-api.online --text --agree-tos --email ritdragon@gmail.com --rsa-key-size 4096 --verbose --keep-until-expiring --preferred-challenges=http"
+  #   entrypoint: ""
+  #   volumes:
+  #     - "/etc/letsencrypt:/etc/letsencrypt"
+  #     - "/tmp/acme-challenge:/tmp/acme-challenge"
+  #   environment:
+  #     - TERM=xterm
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./nginx/app.conf:/etc/nginx/app.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      - rest-api
+    ports:
+      - 80:80
+      # - 443:443
 
   # certbot:
   #   image: certbot/certbot
