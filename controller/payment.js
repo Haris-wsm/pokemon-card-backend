@@ -128,12 +128,6 @@ exports.info = async (req, res, next) => {
 
     const currentDate = new Date(timestamp + THIRTY_MINUTE);
 
-    let refUser = null;
-
-    if (ref_user !== "") {
-      refUser = ref_user;
-    }
-
     const orderData = {
       ref_no: noRef,
       amount,
@@ -144,8 +138,8 @@ exports.info = async (req, res, next) => {
       products: results,
     };
 
-    if (refUser) {
-      orderData.ref_user = refUser;
+    if (ref_user !== "") {
+      orderData.ref_user = ref_user;
     }
 
     const order = await OrderModel.create(orderData);
