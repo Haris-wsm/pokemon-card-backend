@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const tasks = require("./tasks");
 
 // This will run every 15 minute
-cron.schedule("*/1 * * * *", async () => {
+cron.schedule("*/15 * * * *", async () => {
   await tasks.removeTimeoutPayment();
 });
 
