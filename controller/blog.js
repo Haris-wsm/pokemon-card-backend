@@ -19,6 +19,38 @@ exports.listNew = async (req, res, next) => {
     next(error);
   }
 };
+exports.listPinPage = async (req, res, next) => {
+  try {
+    let blogs = [];
+
+    // Query pinned blogs
+    const pinnedBlogs = await BlogModel.aggregate([
+      { $match: { pin: true } },
+      { $sort: { createdAt: -1 } },
+      { $limit: 3 },
+    ]);
+
+    // If pinned blogs are less than 2, or there are no pinned blogs, query blogs by date
+    if (pinnedBlogs.length < 3) {
+      const remainingLimit = 3 - pinnedBlogs.length;
+
+      const nonPinnedBlogs = await BlogModel.aggregate([
+        { $match: { pin: false, publish: true } },
+        { $sort: { createdAt: -1 } },
+        { $limit: remainingLimit },
+      ]);
+
+      blogs = [...pinnedBlogs, ...nonPinnedBlogs];
+    } else {
+      blogs = pinnedBlogs;
+    }
+
+    responseSuccess(res, "ดึงข้อมูลสำเร็จ", 200, blogs);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
 
 exports.createBlog = async (req, res, next) => {
   try {
@@ -35,6 +67,7 @@ exports.createBlog = async (req, res, next) => {
     await BlogModel.create({
       raw_html: body.rawHtml,
       publish: body.publish,
+      pin: body.pin,
       slug: body.slug,
       title: body.title,
       image: body.image,
@@ -42,6 +75,7 @@ exports.createBlog = async (req, res, next) => {
 
     responseSuccess(res, "เพิ่มข้อมูลสำเร็จ", 201);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };

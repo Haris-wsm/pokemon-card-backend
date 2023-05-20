@@ -7,6 +7,7 @@ const shema = new Mongoose.Schema(
     slug: { type: String },
     image: { type: String },
     publish: { type: Boolean, default: true },
+    pin: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

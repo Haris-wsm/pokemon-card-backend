@@ -5,6 +5,7 @@ const blogController = require("../../controller/blog");
 router.get("/", blogController.list);
 router.get("/all", blogController.listHome);
 router.get("/newest", blogController.listNew);
+router.get("/pin-page", blogController.listPinPage);
 router.get("/:slug", blogController.getBlog);
 router.put("/:slug", blogController.updateBlog);
 router.delete("/:slug", blogController.deleteBlog);
