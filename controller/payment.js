@@ -139,7 +139,7 @@ exports.info = async (req, res, next) => {
     };
 
     if (req.body.ref_user) {
-      orderData.ref_user = ref_user;
+      orderData.ref_user = req.body.ref_user;
     }
 
     const order = await OrderModel.create(orderData);
