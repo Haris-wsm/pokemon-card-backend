@@ -97,7 +97,7 @@ exports.info = async (req, res, next) => {
 
       const pipeline = [
         { $match: { ref_product: new ObjectId(item._id), status: "unused" } },
-        { $limit: item.qty },
+        { $limit: Number(item.qty) },
         { $project: { _id: 1, ref_product: 1 } },
       ];
 
