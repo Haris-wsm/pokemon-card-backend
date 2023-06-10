@@ -102,7 +102,7 @@ exports.paymentServiceGB = async (req, res, next) => {
 
     try {
       await transpoter.sendMail(mailoption);
-      // update sending email success, if not cron will be sending later
+      // update sending email success, if not cron will be sending later // no implement
       order.sending = true;
       await order.save();
     } catch (error) {

@@ -8,3 +8,5 @@ public/blog
 public/images
 public/product
 public/website
+
+serve.sh

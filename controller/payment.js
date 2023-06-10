@@ -2,6 +2,10 @@ const generate = require("nanoid/generate");
 const fs = require("fs");
 const path = require("path");
 const dayjs = require("dayjs");
+const duration = require("dayjs/plugin/duration");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+
 const axios = require("axios");
 const { validationResult } = require("express-validator");
 const ValidationError = require("../error/ValidationError");
@@ -11,10 +15,14 @@ const CodeModel = require("../models/code");
 const { responseSuccess } = require("../utils/response");
 const mongoose = require("mongoose");
 
+dayjs.extend(utc);
+dayjs.extend(duration);
+dayjs.extend(timezone);
+
 function random() {
   return generate("1234567890abcdef", 10);
 }
-const THIRTY_MINUTE = 1000 * 60 * 30;
+const FIVE_MINUTE = 1000 * 60 * 5;
 
 exports.info = async (req, res, next) => {
   try {
@@ -68,20 +76,11 @@ exports.info = async (req, res, next) => {
 
     // Correct Time/Zone
     // Get Timeout with 30 minute
-    const options = {
-      timeZone: "Asia/Bangkok",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    };
 
-    const bangkokDate = new Intl.DateTimeFormat("en-US", options).format(
-      new Date()
-    );
-    const timestamp = new Date(bangkokDate).getTime();
+    const bangkokDate = dayjs()
+      .utcOffset(7 * 60)
+      .toDate();
+    const timestamp = bangkokDate.getTime();
 
     // Reservation Item for being booking and release if timout expires later
 
@@ -126,7 +125,7 @@ exports.info = async (req, res, next) => {
       return { codes: fomatCodeList, ref_product: updatedCodes[0].ref_product };
     });
 
-    const currentDate = new Date(timestamp + THIRTY_MINUTE);
+    const currentDate = new Date(timestamp + FIVE_MINUTE);
 
     const orderData = {
       ref_no: noRef,

@@ -1,7 +1,7 @@
 const OrderModel = require("../../models/order");
 const CodeModel = require("../../models/code");
 
-const THIRTY_MINUTE = 30 * 60 * 1000;
+const FIVE_MINUTE = 5 * 60 * 1000;
 
 module.exports = async function () {
   try {
@@ -11,10 +11,9 @@ module.exports = async function () {
 
     const bangkokTime = new Date().toLocaleString("en-US", options);
 
-    const thirtyMinuteAgoInMillis =
-      new Date(bangkokTime).getTime() - THIRTY_MINUTE;
+    const fiveMinuteAgoInMillis = new Date(bangkokTime).getTime() - FIVE_MINUTE;
 
-    const date = new Date(thirtyMinuteAgoInMillis);
+    const date = new Date(fiveMinuteAgoInMillis);
 
     // Query Order With timeout
     const orders = await OrderModel.aggregate([
