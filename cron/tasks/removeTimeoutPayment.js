@@ -1,18 +1,26 @@
 const OrderModel = require("../../models/order");
 const CodeModel = require("../../models/code");
 
-const TWENTY_MINUTE = 20 * 60 * 1000;
+const dayjs = require("dayjs");
+const duration = require("dayjs/plugin/duration");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+
+const TWENTY_MINUTE = 15 * 60 * 1000;
+
+dayjs.extend(utc);
+dayjs.extend(duration);
+dayjs.extend(timezone);
 
 module.exports = async function () {
   try {
     // Get 20 minute time ago
 
-    const options = { timeZone: "Asia/Bangkok" };
+    const bangkokTime = dayjs()
+      .utcOffset(7 * 60)
+      .toDate();
 
-    const bangkokTime = new Date().toLocaleString("en-US", options);
-
-    const twentyMinuteAgoInMillis =
-      new Date(bangkokTime).getTime() - TWENTY_MINUTE;
+    const twentyMinuteAgoInMillis = bangkokTime.getTime() - TWENTY_MINUTE;
 
     const date = new Date(twentyMinuteAgoInMillis);
 
