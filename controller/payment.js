@@ -22,7 +22,7 @@ dayjs.extend(timezone);
 function random() {
   return generate("1234567890abcdef", 10);
 }
-const FIVE_MINUTE = 1000 * 60 * 5;
+const TEN_MINUTE = 1000 * 60 * 10;
 
 exports.info = async (req, res, next) => {
   try {
@@ -125,7 +125,7 @@ exports.info = async (req, res, next) => {
       return { codes: fomatCodeList, ref_product: updatedCodes[0].ref_product };
     });
 
-    const currentDate = new Date(timestamp + FIVE_MINUTE);
+    const currentDate = new Date(timestamp + TEN_MINUTE);
 
     const orderData = {
       ref_no: noRef,

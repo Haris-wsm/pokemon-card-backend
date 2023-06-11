@@ -1,7 +1,7 @@
 const OrderModel = require("../../models/order");
 const CodeModel = require("../../models/code");
 
-const FIVE_MINUTE = 5 * 60 * 1000;
+const TEN_MINUTE = 10 * 60 * 1000;
 
 module.exports = async function () {
   try {
@@ -11,7 +11,7 @@ module.exports = async function () {
 
     const bangkokTime = new Date().toLocaleString("en-US", options);
 
-    const fiveMinuteAgoInMillis = new Date(bangkokTime).getTime() - FIVE_MINUTE;
+    const fiveMinuteAgoInMillis = new Date(bangkokTime).getTime() - TEN_MINUTE;
 
     const date = new Date(fiveMinuteAgoInMillis);
 
