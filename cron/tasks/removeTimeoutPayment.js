@@ -1,19 +1,20 @@
 const OrderModel = require("../../models/order");
 const CodeModel = require("../../models/code");
 
-const TEN_MINUTE = 10 * 60 * 1000;
+const TWENTY_MINUTE = 20 * 60 * 1000;
 
 module.exports = async function () {
   try {
-    // Get 30 minute time ago
+    // Get 20 minute time ago
 
     const options = { timeZone: "Asia/Bangkok" };
 
     const bangkokTime = new Date().toLocaleString("en-US", options);
 
-    const fiveMinuteAgoInMillis = new Date(bangkokTime).getTime() - TEN_MINUTE;
+    const twentyMinuteAgoInMillis =
+      new Date(bangkokTime).getTime() - TWENTY_MINUTE;
 
-    const date = new Date(fiveMinuteAgoInMillis);
+    const date = new Date(twentyMinuteAgoInMillis);
 
     // Query Order With timeout
     const orders = await OrderModel.aggregate([
