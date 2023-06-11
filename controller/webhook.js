@@ -1,6 +1,7 @@
 const dayjs = require("dayjs");
-
-require("dayjs/locale/th");
+const duration = require("dayjs/plugin/duration");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
 
 const ValidationError = require("../error/ValidationError");
 const OrderModel = require("../models/order");
@@ -9,6 +10,10 @@ const transpoter = require("../utils/email/transporter");
 
 // const nodemailer = require("nodemailer");
 const template = require("../utils/email/template/order");
+
+dayjs.extend(utc);
+dayjs.extend(duration);
+dayjs.extend(timezone);
 
 async function getOrderInfoPayload(order) {
   const products = await OrderModel.aggregate([
@@ -76,13 +81,19 @@ exports.paymentServiceGB = async (req, res, next) => {
       ref_no: noRef,
     });
 
-    if (!order) throw new ValidationError("ไม่พบรายการชำระสินค้า");
+    if (!order) {
+      console.log(new ValidationError("ไม่พบรายการชำระสินค้า"));
+      throw new ValidationError("ไม่พบรายการชำระสินค้า");
+    }
 
     // Check if timeout กรณีสินค้าหมดเวลา แต่มีการชำระภายหลัง
     const now = dayjs();
     const diff = dayjs(order.timeout).diff(now);
 
-    if (diff <= 0) throw new ValidationError("หมดเวลาชำระสินค้า");
+    if (diff <= 0) {
+      console.log(new ValidationError("หมดเวลาชำระสินค้า"));
+      throw new ValidationError("หมดเวลาชำระสินค้า");
+    }
 
     // Create payload from query order for generate template
 
