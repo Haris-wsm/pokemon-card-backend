@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 router.use("/upload", require("./upload"));
 router.use("/categories", require("./category"));
+router.use("/codes", require("./code"));
 router.use("/products", require("./products"));
 router.use("/banner", require("./banner"));
 router.use("/website", require("./web-site"));
