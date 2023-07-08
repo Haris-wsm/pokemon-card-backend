@@ -801,7 +801,7 @@ const template = ({
                                           color: #333333;
                                         "
                                       >
-                                        Your order is on its way!
+                                        รายการคำสั่งซื้อของท่าน
                                       </h1>
                                     </td>
                                   </tr>
@@ -943,7 +943,7 @@ const template = ({
                                                 mso-text-raise: 1px;
                                               "
                                             >
-                                              Link for get codes
+                                              กดลิงค์ เพื่อรับโค้ดของฉัน
                                             </center>
                                           </v:roundrect></a
                                         > <!
