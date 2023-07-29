@@ -14,6 +14,7 @@ router.use("/payment", require("./payment"));
 router.use("/orders", require("./order"));
 router.use("/contact", require("./contact"));
 router.use("/social", require("./social"));
+router.use("/tags", require("./tag"));
 router.use("/statistic", require("./statistic"));
 router.use("/test", require("./test"));
 

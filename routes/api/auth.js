@@ -18,7 +18,6 @@ router.post(
 router.post("/register/user", authController.registerUser);
 
 // Get User
-
 router.get("/user-profile", userPassportJWT.isLogin, authController.getProfile);
 
 module.exports = router;
