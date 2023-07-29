@@ -10,6 +10,7 @@ router.get("/top-sell", productController.topSell);
 router.get("/newest", productController.listNew);
 router.post("/user-cart", productController.checkUserCart);
 router.get("/:id", productController.getOne);
+router.get("/name/:name", productController.getByName);
 router.get("/category/on-sale", productController.getOnSale);
 router.get("/category/:name", productController.getByCategory);
 router.get("/search/:word", productController.search);

@@ -349,6 +349,72 @@ exports.getOne = async (req, res, next) => {
     next(error);
   }
 };
+exports.getByName = async (req, res, next) => {
+  try {
+    const { name } = req.params;
+
+    const { ObjectId } = mongoose.Types;
+
+    const product = await ProductModel.aggregate([
+      { $match: { name: name } },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "ref_category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: {
+          path: "$category",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "codes",
+          localField: "_id",
+          foreignField: "ref_product",
+          as: "codes",
+        },
+      },
+      {
+        $unwind: {
+          path: "$codes",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          used: { $sum: { $cond: [{ $eq: ["$codes.status", "used"] }, 1, 0] } },
+          unused: {
+            $sum: { $cond: [{ $eq: ["$codes.status", "unused"] }, 1, 0] },
+          },
+          image: { $first: "$image" },
+          name: { $first: "$name" },
+          desc: { $first: "$desc" },
+          price: { $first: "$price" },
+          status: { $first: "$status" },
+          isSetPackage: { $first: "$isSetPackage" },
+          sale: { $first: "$sale" },
+          discount: { $first: "$discount" },
+          gallery: { $first: "$gallery" },
+          category: {
+            $first: "$category",
+          },
+          updatedAt: { $first: "$updatedAt" },
+        },
+      },
+    ]);
+
+    responseSuccess(res, "ค้นหาข้อมูลสำเร็จ", 200, product[0]);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
 
 exports.getOnSale = async (req, res, next) => {
   try {
