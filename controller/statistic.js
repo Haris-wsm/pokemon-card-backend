@@ -16,9 +16,9 @@ dayjs.extend(timezone);
 
 exports.getOrderStatisTic = async (req, res, next) => {
   try {
-    const bangkokDate = dayjs()
-      .utcOffset(7 * 60)
-      .toDate();
+    const options = { timeZone: "Asia/Bangkok" };
+    const bangkokTime = new Date().toLocaleString("en-US", options);
+    const bangkokDate = new Date(bangkokTime);
 
     const dataset = {
       month: [
@@ -87,12 +87,12 @@ exports.getOrderStatisTic = async (req, res, next) => {
     // Get the start of the current month
     const startOfMonth = new Date(
       bangkokDate.getFullYear(),
-      bangkokDate.getMonth() + 1,
+      bangkokDate.getMonth(),
       1
     );
 
     // Get the start of the next month
-    const nextMonth = bangkokDate.getMonth() + 2;
+    const nextMonth = bangkokDate.getMonth() + 1;
     const startOfNextMonth = new Date(bangkokDate.getFullYear(), nextMonth, 1);
 
     // Convert the dates to ISO format
@@ -161,7 +161,7 @@ exports.getOrderStatisTic = async (req, res, next) => {
     dataset.year = ordersInYear.map((o) => o.totalOrders);
 
     if (ordersInMonth.length > 0) {
-      dataset.month = ordersInMonth[0].day;
+      dataset.month = ordersInMonth[0].days;
     }
 
     responseSuccess(res, "Get Statistic Ordering Success", 200, dataset);
@@ -172,25 +172,30 @@ exports.getOrderStatisTic = async (req, res, next) => {
 
 exports.getOrderToday = async (req, res, next) => {
   try {
-    const bangkokDate = dayjs()
-      .utcOffset(7 * 60)
-      .toDate();
-    // Set the start of the current day
-    bangkokDate.setHours(0, 0, 0, 0);
-    bangkokDate.setMonth(bangkokDate.getMonth() + 1);
+    // 24h ago
+    const options = { timeZone: "Asia/Bangkok" };
+    const bangkokTime = new Date().toLocaleString("en-US", options);
 
-    const startOfDay = bangkokDate.toISOString();
+    const current = new Date(bangkokTime);
+    current.setHours(0, 0, 0, 0);
+    current.setMonth(current.getMonth());
 
-    // Set the end of the current day
-    bangkokDate.setHours(23, 59, 59, 999);
-    const endOfDay = bangkokDate.toISOString();
+    const startOfDay = current.getTime();
+
+    current.setHours(23, 59, 59, 999);
+    const endOfDay = current.toISOString();
+
+    // const twentyHourAgo = nowInMillis - TWENTYHOUR_IN_MILLIS;
+
+    const startDate = new Date(startOfDay);
+    const endDate = new Date(endOfDay);
 
     const orders = await OrderModel.aggregate([
       {
         $match: {
           createdAt: {
-            $gte: new Date(startOfDay),
-            $lte: new Date(endOfDay),
+            $gte: startDate,
+            $lte: endDate,
           },
         },
       },
