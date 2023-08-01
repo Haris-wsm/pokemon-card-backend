@@ -422,26 +422,6 @@ exports.getOnSale = async (req, res, next) => {
 
     const pipeline = [{ $match: { sale: true } }];
 
-    if (sort === "name") {
-      pipeline.push({ $sort: { name: 1 } });
-    }
-
-    if (sort === "onsale") {
-      pipeline.push({ $match: { sale: true } });
-    }
-
-    if (sort === "maxprice") {
-      pipeline.push({ $sort: { price: -1 } });
-    }
-
-    if (sort === "minprice") {
-      pipeline.push({ $sort: { price: 1 } });
-    }
-
-    if (sort === "newest") {
-      pipeline.unshift({ $sort: { createdAt: -1 } });
-    }
-
     pipeline.push(
       { $skip: (page - 1) * limit },
       { $limit: parseInt(limit) },
@@ -482,6 +462,26 @@ exports.getOnSale = async (req, res, next) => {
         },
       }
     );
+
+    if (sort === "name") {
+      pipeline.push({ $sort: { name: 1 } });
+    }
+
+    if (sort === "onsale") {
+      pipeline.push({ $match: { sale: true } });
+    }
+
+    if (sort === "maxprice") {
+      pipeline.push({ $sort: { price: -1 } });
+    }
+
+    if (sort === "minprice") {
+      pipeline.push({ $sort: { price: 1 } });
+    }
+
+    if (sort === "newest") {
+      pipeline.unshift({ $sort: { createdAt: -1 } });
+    }
 
     const [products, total] = await Promise.all([
       ProductModel.aggregate(pipeline),
@@ -512,26 +512,6 @@ exports.search = async (req, res, next) => {
 
     const pipeline = [matches];
 
-    if (sort === "name") {
-      pipeline.push({ $sort: { name: 1 } });
-    }
-
-    if (sort === "onsale") {
-      pipeline.push({ $match: { sale: true } });
-    }
-
-    if (sort === "maxprice") {
-      pipeline.push({ $sort: { price: -1 } });
-    }
-
-    if (sort === "minprice") {
-      pipeline.push({ $sort: { price: 1 } });
-    }
-
-    if (sort === "newest") {
-      pipeline.unshift({ $sort: { createdAt: -1 } });
-    }
-
     pipeline.push(
       { $skip: (page - 1) * limit },
       { $limit: parseInt(limit) },
@@ -572,6 +552,26 @@ exports.search = async (req, res, next) => {
         },
       }
     );
+
+    if (sort === "name") {
+      pipeline.push({ $sort: { name: 1 } });
+    }
+
+    if (sort === "onsale") {
+      pipeline.push({ $match: { sale: true } });
+    }
+
+    if (sort === "maxprice") {
+      pipeline.push({ $sort: { price: -1 } });
+    }
+
+    if (sort === "minprice") {
+      pipeline.push({ $sort: { price: 1 } });
+    }
+
+    if (sort === "newest") {
+      pipeline.unshift({ $sort: { createdAt: -1 } });
+    }
 
     const [products, total] = await Promise.all([
       ProductModel.aggregate(pipeline),
@@ -600,26 +600,6 @@ exports.getByCategory = async (req, res, next) => {
 
     const pipeline = [{ $match: { ref_category: category._id } }];
 
-    if (sort === "name") {
-      pipeline.push({ $sort: { name: 1 } });
-    }
-
-    if (sort === "onsale") {
-      pipeline.push({ $match: { sale: true } });
-    }
-
-    if (sort === "maxprice") {
-      pipeline.push({ $sort: { price: -1 } });
-    }
-
-    if (sort === "minprice") {
-      pipeline.push({ $sort: { price: 1 } });
-    }
-
-    if (sort === "newest") {
-      pipeline.push({ $sort: { createdAt: -1 } });
-    }
-
     pipeline.push(
       { $skip: (page - 1) * limit },
       { $limit: parseInt(limit) },
@@ -660,6 +640,26 @@ exports.getByCategory = async (req, res, next) => {
         },
       }
     );
+
+    if (sort === "name") {
+      pipeline.push({ $sort: { name: 1 } });
+    }
+
+    if (sort === "onsale") {
+      pipeline.push({ $match: { sale: true } });
+    }
+
+    if (sort === "maxprice") {
+      pipeline.push({ $sort: { price: -1 } });
+    }
+
+    if (sort === "minprice") {
+      pipeline.push({ $sort: { price: 1 } });
+    }
+
+    if (sort === "newest") {
+      pipeline.push({ $sort: { createdAt: -1 } });
+    }
 
     const [products, total] = await Promise.all([
       ProductModel.aggregate(pipeline),
