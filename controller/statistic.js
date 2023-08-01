@@ -29,6 +29,7 @@ exports.getOrderStatisTic = async (req, res, next) => {
     };
 
     const ordersInYear = await OrderModel.aggregate([
+      { $match: { sucesss: true } },
       {
         $group: {
           _id: { $month: "$createdAt" },
@@ -106,6 +107,7 @@ exports.getOrderStatisTic = async (req, res, next) => {
             $gte: new Date(startOfMonthISO),
             $lt: new Date(startOfNextMonthISO),
           },
+          sucesss: true,
         },
       },
       {
