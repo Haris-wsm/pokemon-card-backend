@@ -202,25 +202,120 @@ exports.getOrderToday = async (req, res, next) => {
         },
       },
       {
-        $unwind: "$products",
+        $unwind: {
+          path: "$products",
+        },
       },
       {
-        $lookup: {
-          from: "products",
-          localField: "products.ref_product",
-          foreignField: "_id",
-          as: "productInfo",
+        $unwind: {
+          path: "$products.codes",
         },
       },
       {
         $group: {
           _id: "$products.ref_product",
-          productName: { $first: { $arrayElemAt: ["$productInfo.name", 0] } },
-          image: { $first: { $arrayElemAt: ["$productInfo.image", 0] } },
-          total: { $sum: 1 },
+          codes: {
+            $push: "$products.codes",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          ref_product: "$_id",
+          codes: {
+            $size: "$codes",
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "ref_product",
+          foreignField: "_id",
+          as: "products",
+        },
+      },
+      {
+        $unwind: {
+          path: "$products",
+        },
+      },
+      {
+        $addFields: {
+          products: {
+            $arrayToObject: {
+              $map: {
+                input: {
+                  $objectToArray: "$products",
+                },
+                in: {
+                  k: {
+                    $concat: ["$$this.k"],
+                  },
+                  v: "$$this.v",
+                },
+              },
+            },
+          },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: ["$products", "$$ROOT"],
+          },
+        },
+      },
+      {
+        $project: {
+          _id: "$ref_product",
+          productName: "$name", // Corrected path to the name field inside the "product" subdocument.
+          image: "$image", // Corrected path to the image field inside the "product" subdocument.
+          total: "$codes",
+          totalIncome: {
+            $sum: {
+              $cond: [
+                { $eq: ["$sale", true] }, // Adjusted path to the "sale" field inside the "product" subdocument.
+                {
+                  $multiply: [{ $subtract: ["$price", "$discount"] }, "$codes"], // Adjusted path to the "price" and "discount" fields inside the "product" subdocument.
+                },
+                { $multiply: ["$price", "$codes"] }, // Adjusted path to the "price" field inside the "product" subdocument.
+              ],
+            },
+          },
         },
       },
     ]);
+    // const orders = await OrderModel.aggregate([
+    //   {
+    //     $match: {
+    //       createdAt: {
+    //         $gte: startDate,
+    //         $lte: endDate,
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $unwind: "$products",
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: "products",
+    //       localField: "products.ref_product",
+    //       foreignField: "_id",
+    //       as: "productInfo",
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: "$products.ref_product",
+    //       productName: { $first: { $arrayElemAt: ["$productInfo.name", 0] } },
+    //       image: { $first: { $arrayElemAt: ["$productInfo.image", 0] } },
+    //       total: { $sum: 1 },
+    //     },
+    //   },
+    // ]);
 
     responseSuccess(res, "Get Statistic Today Ordering Success", 200, orders);
   } catch (error) {
