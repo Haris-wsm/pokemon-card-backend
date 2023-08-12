@@ -1,4 +1,5 @@
 version: "3.7"
+
 services:
   rest-api:
     container_name: rest-api
@@ -24,15 +25,21 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    ports:
-      - "27017:27017"
     volumes:
-      - dbdata6:/data/db
+      - dbdata:/data/db
+    networks:
+      - backend-network
+
   redis:
     image: redis:alpine
     container_name: redis-client
     ports:
       - "6379:6379"
+    networks:
+      - backend-network
 volumes:
-  dbdata6:
+  dbdata:
   appdata:
+
+networks:
+  backend-network:
